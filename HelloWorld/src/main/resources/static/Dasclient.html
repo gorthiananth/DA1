@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html ng-app="dasClient">
+
+<head>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular-sanitize.min.js"></script>
+     
+    <title> DAS CLIENT</title>
+    <style>
+        body {
+           
+        }
+
+        .submit {
+            color: blue;
+            background: whitesmoke;
+        }
+
+        .Reset {
+            color: blue;
+            background: whitesmoke;
+        }
+
+        .btn {
+            height: 29px;
+            margin-right: 15px;
+            border: 2px solid #33b5e5!important;
+            background-color: transparent!important;
+            color: #33b5e5!important;
+            border-radius: 15px;
+            width: 105px;
+        }
+
+        .btn-div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .input-box {
+            width: 100%;
+            height: 24px;
+            padding: 0 10px;
+            font-size: 13px;
+        }
+        .input-form {
+            width:40%;
+            line-height: 1.6;
+            padding: 15px;
+            box-shadow: 0 2px 5px 0 rgba(0,0,0,.16), 0 2px 10px 0 rgba(0,0,0,.12);
+        }
+        .title {
+                line-height: 3;
+                text-align: center;
+                background-color: #33b5e5!important;
+                margin-bottom: 10px;
+        }
+        tr {
+            line-height: 2.5;
+        }
+    </style>
+</head>
+
+<body ng-controller="dasController" background="networkglobe.png">
+
+    <div style="display: flex; align-items: center;     justify-content: center;">
+        <form name="das" ng-submit="queryDas();" novalidate class="input-form">
+            <div class="title">
+                <span>Das Client</span>
+            </div>
+
+            <table style="width: 95%;" class="container">
+               <tbody>
+                <tr>
+                    <td>
+                        <label for="tableName">Table Name: </label>
+                    </td>
+                    <td>
+                        <input type="text" class="input-box" id="tableName" ng-model="payload.tableName" /> </td>                </tr>
+                <tr>
+                    <td><label for="dasServer">Enter DAS SERVER: </label></td>
+                    <td>
+                        <input type="text" class="input-box" id="dasServer" ng-model="payload.dasServer" /> </td>
+                </tr>
+
+
+                <tr>
+                    <td><label for="cpccode">Enter your CP Code :</label></td>
+                    <td>
+                        <input type="text" class="input-box" id="cpccode" ng-model="payload.cpcode" /></td>
+                    <tr>
+                    <td><label for="column">Enter your column :</label></td>
+                    <td>
+                        <input type="text" class="input-box" id="coloum" ng-model="payload.column" /> </td>
+
+                <tr>
+                    <td><label for="startDate">Enter Start Date :</label></td>
+                    <td>
+                        <input type="text" class="input-box" id="startDate" ng-model="payload.startDate" />
+                    </td>
+
+                <tr>
+                    <td><label for="endDate"></label>Enter End Date :</label></td>
+                    <td>
+                        <input type="text" class="input-box" id="endDate" ng-model="payload.endDate" />
+
+                    </td>
+                <tr>
+                    <td><label for="limit">Enter Limit :</label></td>
+                    <td>
+                        <input type="text" class="input-box" id="limit" ng-model="payload.limit" /> </td>
+
+                <tr>
+                    <td><label for="service">Enter Service Type :</label></td>
+                    <td>
+                        <select id="service" class="input-box" ng-model="payload.serviceType">
+                            <option value="htp">htp</option>
+                            <option value="ftp">ftp</option>
+                        </select></td>
+
+                </tr>
+
+                <tr>
+                    <td><label for="groupBy">Enter groupBy :</label></td>
+                    <td>
+                        <input type="groupBy" class="input-box" id="groupBy" ng-model="payload.groupBy" /> </td>
+
+                </tr>
+                <tr>
+                    <td><label for="orderBy">Enter orderBy :</label></td>
+                    <td>
+                        <input type="orderBy" class="input-box" id="orderBy" ng-model="payload.orderBy" /> </td>
+
+                </tr>
+                 <tr>
+                    <td><label for="Order">Order :</label></td>
+                    <td>
+                      <form>
+             <div>
+        <input type="radio" id="Asc"  value="asc" ng-model="payload.order">
+          <label for="Asce">Asce</label>
+          <input type="radio" id="Desc" value="Desc" ng-model="payload.order">
+         <label for="Desc">Desc</label>
+       </div>
+  
+         </form>
+                     </td>
+
+                <tr>
+            </table>
+            <div class="btn-div">
+                <button type="submit" class="submit btn"> Submit </button>
+                <input type="reset" ng-click="resetForm()" class="Reset btn" value="Reset" />
+                  <button type="submit"  ng-click="exportcsv()" class="submit btn"> Export </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <div style="display: flex;justify-content: center;">
+       
+
+    <div ng-bind-html="result">
+    </div>
+    <script>
+        //1. create app module 
+        var dasApp = angular.module('dasClient', ['ngSanitize']);
+
+        //2. create controller
+        dasApp.controller("dasController", ['$scope', '$http', function ($scope, $http) {
+
+
+            //5. create submitStudentForm() function. This will be called when user submits the form
+            $scope.payload = {
+                cpcode: 310860,
+                tableName: 'ma_stat_epd_-_F_time',
+                serviceType: 'htp',
+                startDate: '07-09-2019 00:00:00',
+                endDate: '10-09-2019 00:00:00',
+                groupBy: 'egress_hits',
+                column: 'egress_hits',
+                limit: '10',
+                dasServer: '198.18.87.199',
+                orderBy: 'egress_hits',
+                order:'Desc',
+                
+            };
+            $scope.maxDatetimeLocal = new Date();
+            $scope.queryDas = () => {
+
+                var onSuccess = function (data, status, headers, config) {
+                    alert('Student saved successfully.', data);
+                };
+
+                var onError = function (data, status, headers, config) {
+                    alert('Error occured.');
+                }
+
+                $http.post('/DASApplication/dasclient', $scope.payload)
+                    .then(({data}) => {
+
+
+                        $scope.result = '<br/> <br/> <table class="table table-striped">';
+                        data.forEach(rows => {
+                            $scope.result += '<tr>' + rows.map(c => `<td>${c}</td>`).join(' ') +'</tr>';
+                        })
+                        $scope.result += '</table>';
+                        console.log($scope.result);
+                    }, (data) => console.log('Error occured.', data));
+
+            };
+
+            //6. create resetForm() function. This will be called on Reset button click.  
+            $scope.resetForm = function () {
+                $scope.student = angular.copy($scope.OriginalStudent);
+            };
+        }]);
+    </script>
+
+     <div style="display: flex; align-items: center;     justify-content: center;">
+        <form name="das" ng-submit="exportcsv();" novalidate>
+            <div ng-bind-html="resultcsv">
+            </div>
+            <script>
+                 var dasApp1 = angular.module('exportcsv', ['ngSanitize']);
+
+        //2. create controller
+        dasApp1.controller( ['$scope', '$http', function ($scope, $http) {
+      $scope.exportcsv = () => {
+
+               
+          var a = document.createElement("a");
+                $http.post('/DASApplication/dasclient', $scope.payload)
+                    .then(({data}) => {
+
+                         $scope.resultcsv = data;
+                        var csv =$scope.resultcsv;
+ 
+      if (window.navigator.msSaveOrOpenBlob) {
+        var blob = new Blob([decodeURIComponent(encodeURI(csv))], {
+          type: "text/csv;charset=utf-8;"
+        });
+        navigator.msSaveBlob(blob, 'das.csv');
+      } else {
+ 
+        a.href = 'data:attachment/csv;charset=utf-8,' + encodeURI(csv);
+        a.target = '_blank';
+        a.download = 'das.csv';
+        document.body.appendChild(a);
+        a.click();
+      }
+
+                        console.log($scope.resultcsv);
+                    }, (data) => console.log('Error occured.', data));
+
+            };
+
+
+         }]);
+         </script>   
+
+</body>
+
+</html>
